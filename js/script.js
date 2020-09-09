@@ -1,7 +1,6 @@
 const gallery = document.getElementById('gallery');
 
 
-
 //function to fetch the random users
 async function fetchUsers () {
     try {
@@ -13,70 +12,98 @@ async function fetchUsers () {
     }
 }
 
-fetchUsers()
+fetchUsers();
 
 
 //creating the html for the gallery
-const generateHTML = (users) => {
-    users.forEach(user => {
+function generateHTML (users){
+    for(let i = 0; i < users.length; i++){
         const div = document.createElement('div');
         div.classList.add('card')
         gallery.appendChild(div);
     div.innerHTML = `
         <div class="card-img-container">
-        <img class="card-img" src="${user.picture.large}" alt="profile picture">
+        <img class="card-img" src="${users[i].picture.large}" alt="profile picture">
     </div>
     <div class="card-info-container">
-        <h3 id="name" class="card-name cap">${user.name.first} ${user.name.last}</h3>
-        <p class="card-text">${user.email}</p>
-        <p class="card-text cap">${user.location.city} ${user.location.state}</p>
+        <h3 id="name" class="card-name cap">${users[i].name.first} ${users[i].name.last}</h3>
+        <p class="card-text">${users[i].email}</p>
+        <p class="card-text cap">${users[i].location.city} ${users[i].location.state}</p>
     </div>
     ` 
-
-//Eventlistener to open the modal window when a user is clicked
+    
+    //Eventlistener to open the modal window when a user is clicked
     div.addEventListener('click', () => {
-        modal(user)
-        })  
+            modal(users, i)
     })
+    }
 };
 
-
 //creating the html for the modal window
-const modal = (user) => {   
+async function modal (user, number){  
+        const employee = user[number]
         const modalContainer = document.createElement('div')
         modalContainer.classList.add('modal-container')
         gallery.appendChild(modalContainer);
         modalContainer.innerHTML = `
         <div class="modal">
-                    <button type="button" id="modal-close-btn" class="modal-close-btn"><strong>X</strong></button>
+                    <button type="button" id="modal-close-btn" class="modal-close-btn">X</button>
                     <div class="modal-info-container">
-                        <img class="modal-img" src="${user.picture.large}" alt="profile picture">
-                        <h3 id="name" class="modal-name cap">${user.name.first} ${user.name.last}</h3>
-                        <p class="modal-text">${user.email}</p>
-                        <p class="modal-text cap">${user.location.city}</p>
+                        <img class="modal-img" src="${employee.picture.large}" alt="profile picture">
+                        <h3 id="name" class="modal-name cap">${employee.name.first} ${employee.name.last}</h3>
+                        <p class="modal-text">${employee.email}</p>
+                        <p class="modal-text cap">${employee.location.city}</p>
                         <hr>
-                        <p class="modal-text">${phoneRegex(user.phone)}</p>
-                        <p class="modal-text">${user.location.street.name} ${user.location.street.number} <br> ${user.location.postcode} ${user.location.country}</p>
-                        <p class="modal-text">${dob(user.dob.date)}</p>
+                        <p class="modal-text">${phoneRegex(employee.phone)}</p>
+                        <p class="modal-text">${employee.location.street.name} ${employee.location.street.number} <br> ${employee.location.postcode} ${employee.location.country}</p>
+                        <p class="modal-text">${dob(employee.dob.date)}</p>
                     </div>
                     <div class="modal-btn-container">
                     <button type="button" id="modal-prev" class="modal-prev btn">Prev</button>
                     <button type="button" id="modal-next" class="modal-next btn">Next</button>
                     </div>
         `
-
-        //Eventlistener to close the modal window
-        document.getElementById("modal-close-btn").addEventListener('click', () => {
-            modalContainer.remove();
-        });
         
-        //added the option to click outside the modal window to close it
-        modalContainer.addEventListener('click', (e) => {
-            if(e.target === modalContainer){
+        //Eventlistener to close the modal window. Added the option to click outside the modal to close it.
+        const closeBtn = document.getElementById("modal-close-btn")
+        document.addEventListener('click', (e) => {
+            if(e.target == modalContainer || e.target == closeBtn){
                 modalContainer.remove();
             }
-        })   
+        });
 
+        //The user can also close the modal by pressing the Escape button
+        document.addEventListener('keydown', (e) => {
+            if(e.keyCode === 27){
+                modalContainer.remove();
+            }
+        })
+          
+        //eventlisteners for the next and prev buttons
+        const next = document.getElementById("modal-next");
+        const prev = document.getElementById("modal-prev");
+
+        document.addEventListener('click', (e) => {
+            if (e.target === next){
+                modalContainer.remove()
+                modal(user, number+1)
+            } else {
+            if (e.target === prev){
+                modalContainer.remove()
+                modal(user, number-1)
+            }    
+            }
+        });
+        
+        //remove the "next" button when the last employee is displayed
+        if(number === 11){
+            document.getElementById("modal-next").style.display = "none"
+        } else {
+        //remove the "previous" button when the first employee is displayed    
+        if(number === 0){
+            document.getElementById("modal-prev").style.display = "none"
+            }
+        }
 };
 
 
@@ -125,12 +152,13 @@ function search () {
             cards[i].style.display ="none"
         }
     }
+    
 
 // If there is no match/if the "matches" array is empty - print out "No Results!"
-    if(matches.length === 0){
-        gallery.innerHTML = `
-        <h3>No Results!</h3>
-        `
+        if(matches.length === 0){
+        noMatches.style.display = ""
+    } else {
+        noMatches.style.display = "none"
     }
 }
 
@@ -138,3 +166,15 @@ function search () {
 document.querySelector('.search-submit').addEventListener('click', () => {
         search()
   });
+
+document.querySelector('.search-input').addEventListener('keyup', () => {
+    search();
+})
+
+
+//"No Results" message for the search function 
+const noMatches = document.createElement("h3")
+noMatches.innerHTML = "No Results!"
+noMatches.style.display = "none"
+gallery.appendChild(noMatches)
+
