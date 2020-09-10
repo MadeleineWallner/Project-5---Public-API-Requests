@@ -1,11 +1,14 @@
 const gallery = document.getElementById('gallery');
-
+let matches = [];
+let results;
 
 //function to fetch the random users
 async function fetchUsers () {
     try {
         const response = await fetch("https://randomuser.me/api/?results=12&nat=us");
         const json = await response.json();
+        results = json.results
+        matches.push(results)
         generateHTML(json.results)
     } catch (error){
         alert(error)
@@ -17,11 +20,11 @@ fetchUsers();
 
 //creating the html for the gallery
 function generateHTML (users){
-    for(let i = 0; i < users.length; i++){
-        const div = document.createElement('div');
-        div.classList.add('card')
-        gallery.appendChild(div);
-    div.innerHTML = `
+    for(let i = 0; i < matches[0].length; i++){
+        const cardDiv = document.createElement('div');
+        cardDiv.classList.add('card')
+        gallery.appendChild(cardDiv);
+    cardDiv.innerHTML = `
         <div class="card-img-container">
         <img class="card-img" src="${users[i].picture.large}" alt="profile picture">
     </div>
@@ -33,15 +36,16 @@ function generateHTML (users){
     ` 
     
     //Eventlistener to open the modal window when a user is clicked
-    div.addEventListener('click', () => {
-            modal(users, i)
+    cardDiv.addEventListener('click', () => {
+        modal(matches[0], i)
     })
     }
 };
 
+
 //creating the html for the modal window
 async function modal (user, number){  
-        const employee = user[number]
+        const employee = user[number] 
         const modalContainer = document.createElement('div')
         modalContainer.classList.add('modal-container')
         gallery.appendChild(modalContainer);
@@ -79,10 +83,9 @@ async function modal (user, number){
             }
         })
           
-        //eventlisteners for the next and prev buttons
         const next = document.getElementById("modal-next");
         const prev = document.getElementById("modal-prev");
-
+        //eventlisteners for the next and prev buttons
         document.addEventListener('click', (e) => {
             if (e.target === next){
                 modalContainer.remove()
@@ -95,15 +98,18 @@ async function modal (user, number){
             }
         });
         
+        
         //remove the "next" button when the last employee is displayed
-        if(number === 11){
+        const last = matches[0].length - 1; 
+        if(number === last){
             document.getElementById("modal-next").style.display = "none"
         } else {
-        //remove the "previous" button when the first employee is displayed    
+        //remove the "previous" button when the first employee is displayed
         if(number === 0){
             document.getElementById("modal-prev").style.display = "none"
             }
         }
+
 };
 
 
@@ -138,24 +144,26 @@ searchContainer.innerHTML = searchBar;
 
 
 function search () {
-    let matches = [];
     const input = document.querySelector('.search-input');
-    const names = document.querySelectorAll('#name')
     const cards = document.querySelectorAll('.card')
 
 //show the employees whos names matches the search, hide the others. 
+matches = []
+let searchResults = []
+const search = input.value.toLowerCase();
+
     for (let i = 0; i < cards.length; i++){
-        if(names[i].innerText.toLowerCase().includes(input.value.toLowerCase())){
-            matches.push(cards[i]) 
+        if(results[i].name.first.toLowerCase().includes(search) || results[i].name.last.toLowerCase().includes(search)){
+            searchResults.push(results[i]) 
             cards[i].style.display = "flex" 
         } else {
             cards[i].style.display ="none"
         }
     }
-    
+    matches.push(searchResults)
 
 // If there is no match/if the "matches" array is empty - print out "No Results!"
-        if(matches.length === 0){
+        if(searchResults.length === 0){
         noMatches.style.display = ""
     } else {
         noMatches.style.display = "none"
