@@ -14,12 +14,11 @@ async function fetchUsers () {
         alert(error)
     }
 }
-
 fetchUsers();
 
 
 //creating the html for the gallery
-function generateHTML (users){
+async function generateHTML (users){
     for(let i = 0; i < matches[0].length; i++){
         const cardDiv = document.createElement('div');
         cardDiv.classList.add('card')
@@ -43,9 +42,11 @@ function generateHTML (users){
 };
 
 
+
+
+
 //creating the html for the modal window
-async function modal (user, number){  
-        const employee = user[number] 
+async function modal (user, number){   
         const modalContainer = document.createElement('div')
         modalContainer.classList.add('modal-container')
         gallery.appendChild(modalContainer);
@@ -53,14 +54,14 @@ async function modal (user, number){
         <div class="modal">
                     <button type="button" id="modal-close-btn" class="modal-close-btn">X</button>
                     <div class="modal-info-container">
-                        <img class="modal-img" src="${employee.picture.large}" alt="profile picture">
-                        <h3 id="name" class="modal-name cap">${employee.name.first} ${employee.name.last}</h3>
-                        <p class="modal-text">${employee.email}</p>
-                        <p class="modal-text cap">${employee.location.city}</p>
+                        <img class="modal-img" src="${user[number].picture.large}" alt="profile picture">
+                        <h3 id="name" class="modal-name cap">${user[number].name.first} ${user[number].name.last}</h3>
+                        <p class="modal-text">${user[number].email}</p>
+                        <p class="modal-text cap">${user[number].location.city}</p>
                         <hr>
-                        <p class="modal-text">${phoneRegex(employee.phone)}</p>
-                        <p class="modal-text">${employee.location.street.name} ${employee.location.street.number} <br> ${employee.location.postcode} ${employee.location.country}</p>
-                        <p class="modal-text">${dob(employee.dob.date)}</p>
+                        <p class="modal-text">${phoneRegex(user[number].phone)}</p>
+                        <p class="modal-text">${user[number].location.street.name} ${user[number].location.street.number} <br> ${user[number].location.postcode} ${user[number].location.country}</p>
+                        <p class="modal-text">${dob(user[number].dob.date)}</p>
                     </div>
                     <div class="modal-btn-container">
                     <button type="button" id="modal-prev" class="modal-prev btn">Prev</button>
@@ -69,10 +70,10 @@ async function modal (user, number){
         `
         
         //Eventlistener to close the modal window. Added the option to click outside the modal to close it.
-        const closeBtn = document.getElementById("modal-close-btn")
         document.addEventListener('click', (e) => {
-            if(e.target == modalContainer || e.target == closeBtn){
-                modalContainer.remove();
+            if(e.target.className === "modal-close-btn" || e.target === modalContainer){
+                modalContainer.style.display = "none";
+
             }
         });
 
@@ -85,29 +86,30 @@ async function modal (user, number){
           
         const next = document.getElementById("modal-next");
         const prev = document.getElementById("modal-prev");
+        
         //eventlisteners for the next and prev buttons
-        document.addEventListener('click', (e) => {
-            if (e.target === next){
-                modalContainer.remove()
-                modal(user, number+1)
-            } else {
-            if (e.target === prev){
-                modalContainer.remove()
-                modal(user, number-1)
-            }    
-            }
+        next.addEventListener('click', () => {
+            modalContainer.remove()
+            modal(matches[0], number+1)
         });
         
-        
+        prev.addEventListener('click', () => {
+            modalContainer.remove()
+            modal(matches[0], number-1)
+        });
+            
+    
         //remove the "next" button when the last employee is displayed
-        const last = matches[0].length - 1; 
+        const last = matches[0].length -1;
         if(number === last){
             document.getElementById("modal-next").style.display = "none"
-        } else {
+
         //remove the "previous" button when the first employee is displayed
-        if(number === 0){
+        } else if(number === 0){
             document.getElementById("modal-prev").style.display = "none"
-            }
+            
+        } else if (matches[0].length === 1) {
+            document.getElementsByClassName("modal-btn-container")[0].remove()
         }
 
 };
@@ -154,8 +156,8 @@ const search = input.value.toLowerCase();
 
     for (let i = 0; i < cards.length; i++){
         if(results[i].name.first.toLowerCase().includes(search) || results[i].name.last.toLowerCase().includes(search)){
-            searchResults.push(results[i]) 
             cards[i].style.display = "flex" 
+            searchResults.push(results[i]) 
         } else {
             cards[i].style.display ="none"
         }
@@ -170,6 +172,13 @@ const search = input.value.toLowerCase();
     }
 }
 
+//"No Results" message for the search function 
+const noMatches = document.createElement("h3")
+noMatches.innerHTML = "No Results!"
+noMatches.style.display = "none"
+gallery.appendChild(noMatches)
+
+
 //call the search function when the search button is clicked
 document.querySelector('.search-submit').addEventListener('click', () => {
         search()
@@ -178,11 +187,4 @@ document.querySelector('.search-submit').addEventListener('click', () => {
 document.querySelector('.search-input').addEventListener('keyup', () => {
     search();
 })
-
-
-//"No Results" message for the search function 
-const noMatches = document.createElement("h3")
-noMatches.innerHTML = "No Results!"
-noMatches.style.display = "none"
-gallery.appendChild(noMatches)
 
