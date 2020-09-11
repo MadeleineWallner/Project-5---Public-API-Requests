@@ -33,16 +33,12 @@ async function generateHTML (users){
         <p class="card-text cap">${users[i].location.city} ${users[i].location.state}</p>
     </div>
     ` 
-    
     //Eventlistener to open the modal window when a user is clicked
     cardDiv.addEventListener('click', () => {
         modal(matches[0], i)
     })
     }
 };
-
-
-
 
 
 //creating the html for the modal window
@@ -72,7 +68,7 @@ async function modal (user, number){
         //Eventlistener to close the modal window. Added the option to click outside the modal to close it.
         document.addEventListener('click', (e) => {
             if(e.target.className === "modal-close-btn" || e.target === modalContainer){
-                modalContainer.style.display = "none";
+                modalContainer.remove();
 
             }
         });
@@ -135,12 +131,11 @@ const dob = (bday) => {
 
 
 //creating the search field and appending it to the search container
-const searchBar = `<form action="#" method="get">
-                            <input type="search" id="search-input" class="search-input" placeholder="Search...">
-                            <input type="submit" value="&#x1F50D;" id="search-submit" class="search-submit">
-                        </form>`
 const searchContainer = document.querySelector(".search-container");
-searchContainer.innerHTML = searchBar;
+searchContainer.innerHTML = `<form action="#" method="get">
+<input type="search" id="search-input" class="search-input" placeholder="Search...">
+<input type="submit" value="&#x1F50D;" id="search-submit" class="search-submit">
+</form>`
 
 
 
