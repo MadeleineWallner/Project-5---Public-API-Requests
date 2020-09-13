@@ -1,6 +1,8 @@
-const gallery = document.getElementById('gallery');
+
 let matches = [];
 let results;
+const modalContainer = document.createElement('div')
+
 
 //function to fetch the random users
 async function fetchUsers () {
@@ -10,6 +12,7 @@ async function fetchUsers () {
         results = json.results
         matches.push(results)
         generateHTML(json.results)
+        openModal(json.results);
     } catch (error){
         alert(error)
     }
@@ -18,33 +21,41 @@ fetchUsers();
 
 
 //creating the html for the gallery
-async function generateHTML (users){
+async function generateHTML (user){
     for(let i = 0; i < matches[0].length; i++){
-        const cardDiv = document.createElement('div');
-        cardDiv.classList.add('card')
-        gallery.appendChild(cardDiv);
-    cardDiv.innerHTML = `
+        const card = document.createElement("div")
+        card.classList.add("card")
+        const gallery = document.getElementById('gallery');
+        gallery.appendChild(card)
+    card.innerHTML = `
         <div class="card-img-container">
-        <img class="card-img" src="${users[i].picture.large}" alt="profile picture">
+        <img class="card-img" src="${user[i].picture.large}" alt="profile picture">
     </div>
     <div class="card-info-container">
-        <h3 id="name" class="card-name cap">${users[i].name.first} ${users[i].name.last}</h3>
-        <p class="card-text">${users[i].email}</p>
-        <p class="card-text cap">${users[i].location.city} ${users[i].location.state}</p>
+        <h3 id="name" class="card-name cap">${user[i].name.first} ${user[i].name.last}</h3>
+        <p class="card-text">${user[i].email}</p>
+        <p class="card-text cap">${user[i].location.city} ${user[i].location.state}</p>
     </div>
     ` 
-    //Eventlistener to open the modal window when a user is clicked
-    cardDiv.addEventListener('click', () => {
-        modal(matches[0], i)
-    })
     }
+            
 };
 
 
+//Function to open the modal window when a user is clicked
+function openModal (user) {
+    const card = document.querySelectorAll(".card")
+    for(let j = 0; j < matches[0].length; j++){
+        card[j].addEventListener('click', () => {
+            modal(user, j)
+        })
+    }
+}
+
 //creating the html for the modal window
 async function modal (user, number){   
-        const modalContainer = document.createElement('div')
         modalContainer.classList.add('modal-container')
+        const gallery = document.getElementById('gallery');
         gallery.appendChild(modalContainer);
         modalContainer.innerHTML = `
         <div class="modal">
@@ -65,11 +76,41 @@ async function modal (user, number){
                     </div>
         `
         
-        //Eventlistener to close the modal window. Added the option to click outside the modal to close it.
+        const prev = document.querySelector(".modal-prev");
+        const next = document.querySelector(".modal-next");
+
+        //remove the "next" button when the last employee is displayed
+        const last = user.length -1;
+        if(number === last){
+            next.remove();
+
+        //remove the "previous" button when the first employee is displayed
+        } else if(number === 0){
+            prev.remove();
+        
+        //if there's only one match, remove both buttons
+        } else if (matches[0].length === 1) {
+            document.getElementsByClassName("modal-btn-container")[0].remove()
+        }
+
+        //eventlisteners for the next and prev buttons  
+            next.addEventListener('click', () => {
+                modalContainer.remove()
+                modal(user, number+1)
+            });
+            
+            prev.addEventListener('click', () => {
+                modalContainer.remove()
+                modal(user, number-1)
+            });
+            
+};
+
+
+//Eventlistener to close the modal window. Added the option to click outside the modal to close it.
         document.addEventListener('click', (e) => {
             if(e.target.className === "modal-close-btn" || e.target === modalContainer){
                 modalContainer.remove();
-
             }
         });
 
@@ -78,39 +119,7 @@ async function modal (user, number){
             if(e.keyCode === 27){
                 modalContainer.remove();
             }
-        })
-          
-        const next = document.getElementById("modal-next");
-        const prev = document.getElementById("modal-prev");
-        
-        //eventlisteners for the next and prev buttons
-        next.addEventListener('click', () => {
-            modalContainer.remove()
-            modal(matches[0], number+1)
         });
-        
-        prev.addEventListener('click', () => {
-            modalContainer.remove()
-            modal(matches[0], number-1)
-        });
-            
-    
-        //remove the "next" button when the last employee is displayed
-        const last = matches[0].length -1;
-        if(number === last){
-            document.getElementById("modal-next").style.display = "none"
-
-        //remove the "previous" button when the first employee is displayed
-        } else if(number === 0){
-            document.getElementById("modal-prev").style.display = "none"
-            
-        } else if (matches[0].length === 1) {
-            document.getElementsByClassName("modal-btn-container")[0].remove()
-        }
-
-};
-
-
 
 //Function to make all phone numbers in the (123) 456-7890 format
 const phoneRegex = (phone) => {
@@ -132,10 +141,11 @@ const dob = (bday) => {
 
 //creating the search field and appending it to the search container
 const searchContainer = document.querySelector(".search-container");
-searchContainer.innerHTML = `<form action="#" method="get">
-<input type="search" id="search-input" class="search-input" placeholder="Search...">
-<input type="submit" value="&#x1F50D;" id="search-submit" class="search-submit">
-</form>`
+searchContainer.innerHTML = `
+        <form action="#" method="get">
+            <input type="search" id="search-input" class="search-input" placeholder="Search...">
+            <input type="submit" value="&#x1F50D;" id="search-submit" class="search-submit">
+        </form>`
 
 
 
@@ -151,7 +161,7 @@ const search = input.value.toLowerCase();
 
     for (let i = 0; i < cards.length; i++){
         if(results[i].name.first.toLowerCase().includes(search) || results[i].name.last.toLowerCase().includes(search)){
-            cards[i].style.display = "flex" 
+            cards[i].style.display = "flex"
             searchResults.push(results[i]) 
         } else {
             cards[i].style.display ="none"
@@ -176,10 +186,9 @@ gallery.appendChild(noMatches)
 
 //call the search function when the search button is clicked
 document.querySelector('.search-submit').addEventListener('click', () => {
-        search()
-  });
+        search();
+});
 
 document.querySelector('.search-input').addEventListener('keyup', () => {
-    search();
+        search();
 })
-
