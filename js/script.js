@@ -12,7 +12,7 @@ async function fetchUsers () {
         results = json.results
         matches.push(results)
         generateHTML(json.results)
-        openModal(json.results);
+        openModal(json.results)
     } catch (error){
         alert(error)
     }
@@ -24,8 +24,8 @@ fetchUsers();
 async function generateHTML (user){
     for(let i = 0; i < matches[0].length; i++){
         const card = document.createElement("div")
-        card.classList.add("card")
-        const gallery = document.getElementById('gallery');
+        card.classList.add("card", "visible-card")
+        const gallery = document.getElementById("gallery");
         gallery.appendChild(card)
     card.innerHTML = `
         <div class="card-img-container">
@@ -37,24 +37,26 @@ async function generateHTML (user){
         <p class="card-text cap">${user[i].location.city} ${user[i].location.state}</p>
     </div>
     ` 
-    }
-            
+    }     
 };
 
 
 //Function to open the modal window when a user is clicked
-function openModal (user) {
-    const card = document.querySelectorAll(".card")
-    for(let j = 0; j < matches[0].length; j++){
-        card[j].addEventListener('click', () => {
+async function openModal (user) {
+    const visibleCards = document.querySelectorAll(".visible-card")
+    for(let j = 0; j < visibleCards.length; j++){
+        visibleCards[j].addEventListener('click', () => {
             modal(user, j)
         })
     }
 }
 
+
+
+
 //creating the html for the modal window
 async function modal (user, number){   
-        modalContainer.classList.add('modal-container')
+        modalContainer.classList.add("modal-container")
         const gallery = document.getElementById('gallery');
         gallery.appendChild(modalContainer);
         modalContainer.innerHTML = `
@@ -78,9 +80,10 @@ async function modal (user, number){
         
         const prev = document.querySelector(".modal-prev");
         const next = document.querySelector(".modal-next");
-
+        const visibleCards = document.querySelectorAll(".visible-card")
+        
         //remove the "next" button when the last employee is displayed
-        const last = user.length -1;
+        const last = visibleCards.length -1;
         if(number === last){
             next.remove();
 
@@ -120,6 +123,7 @@ async function modal (user, number){
                 modalContainer.remove();
             }
         });
+        
 
 //Function to make all phone numbers in the (123) 456-7890 format
 const phoneRegex = (phone) => {
@@ -149,15 +153,19 @@ searchContainer.innerHTML = `
 
 
 
-
 function search () {
     const input = document.querySelector('.search-input');
     const cards = document.querySelectorAll('.card')
+    for(let j = 0; j < cards.length; j++){
+        cards[j].classList.add("card", "visible-card")
+    }
+    
 
 //show the employees whos names matches the search, hide the others. 
 matches = []
 let searchResults = []
 const search = input.value.toLowerCase();
+
 
     for (let i = 0; i < cards.length; i++){
         if(results[i].name.first.toLowerCase().includes(search) || results[i].name.last.toLowerCase().includes(search)){
@@ -165,6 +173,7 @@ const search = input.value.toLowerCase();
             searchResults.push(results[i]) 
         } else {
             cards[i].style.display ="none"
+            cards[i].classList.remove("visible-card")
         }
     }
     matches.push(searchResults)
@@ -187,6 +196,7 @@ gallery.appendChild(noMatches)
 //call the search function when the search button is clicked
 document.querySelector('.search-submit').addEventListener('click', () => {
         search();
+
 });
 
 document.querySelector('.search-input').addEventListener('keyup', () => {
