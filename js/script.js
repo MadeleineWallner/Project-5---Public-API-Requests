@@ -12,7 +12,7 @@ async function fetchUsers () {
         results = json.results
         matches.push(results)
         generateHTML(json.results)
-        openModal(json.results)
+        openModal(json.results);
     } catch (error){
         alert(error)
     }
@@ -46,20 +46,22 @@ async function openModal (user) {
     const visibleCards = document.querySelectorAll(".visible-card")
     for(let j = 0; j < visibleCards.length; j++){
         visibleCards[j].addEventListener('click', () => {
-            modal(user, j)
+            const index = matches[0].indexOf(user[j])
+            modal(matches[0], index)
         })
     }
 }
 
-
-
-
 //creating the html for the modal window
-async function modal (user, number){   
+async function modal (user, number){  
+    console.log(user[number])
+    console.log(number)
+        const visibleCards = document.querySelectorAll(".visible-card")
         modalContainer.classList.add("modal-container")
         const gallery = document.getElementById('gallery');
         gallery.appendChild(modalContainer);
-        modalContainer.innerHTML = `
+        modalContainer.innerHTML = 
+        `
         <div class="modal">
                     <button type="button" id="modal-close-btn" class="modal-close-btn">X</button>
                     <div class="modal-info-container">
@@ -80,7 +82,6 @@ async function modal (user, number){
         
         const prev = document.querySelector(".modal-prev");
         const next = document.querySelector(".modal-next");
-        const visibleCards = document.querySelectorAll(".visible-card")
         
         //remove the "next" button when the last employee is displayed
         const last = visibleCards.length -1;
@@ -92,7 +93,7 @@ async function modal (user, number){
             prev.remove();
         
         //if there's only one match, remove both buttons
-        } else if (matches[0].length === 1) {
+        } else if (visibleCards.length === 1) {
             document.getElementsByClassName("modal-btn-container")[0].remove()
         }
 
@@ -123,7 +124,7 @@ async function modal (user, number){
                 modalContainer.remove();
             }
         });
-        
+
 
 //Function to make all phone numbers in the (123) 456-7890 format
 const phoneRegex = (phone) => {
