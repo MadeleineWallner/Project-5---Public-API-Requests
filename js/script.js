@@ -39,7 +39,7 @@ async function generateHTML (user){
 };
 
 
-//Function to open the modal window when a user is clicked
+//Function to open the modal window when a card is clicked
 async function openModal (user) {
     const visibleCards = document.querySelectorAll(".visible-card")
     for(let j = 0; j < visibleCards.length; j++){
@@ -102,7 +102,7 @@ async function modal (user, number){
                 modal(user, number-1)
             });   
             
-            //Eventlistener to close the modal window. Added the option to click outside the modal to close it.
+            //Eventlistener to close the modal window. Added the option to click outside the modal window to close it.
         document.addEventListener('click', (e) => {
             if(e.target.className === "modal-close-btn" || e.target === modalContainer){
                 modalContainer.remove();
