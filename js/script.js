@@ -1,8 +1,6 @@
 
 let matches = [];
 let results;
-const modalContainer = document.createElement('div')
-
 
 //function to fetch the random users
 async function fetchUsers () {
@@ -54,15 +52,12 @@ async function openModal (user) {
 
 //creating the html for the modal window
 async function modal (user, number){  
-    console.log(user[number])
-    console.log(number)
-        const visibleCards = document.querySelectorAll(".visible-card")
+        const modalContainer = document.createElement('div')
         modalContainer.classList.add("modal-container")
         const gallery = document.getElementById('gallery');
         gallery.appendChild(modalContainer);
-        modalContainer.innerHTML = 
-        `
-        <div class="modal">
+        modalContainer.innerHTML = `
+                <div class="modal">
                     <button type="button" id="modal-close-btn" class="modal-close-btn">X</button>
                     <div class="modal-info-container">
                         <img class="modal-img" src="${user[number].picture.large}" alt="profile picture">
@@ -77,24 +72,23 @@ async function modal (user, number){
                     <div class="modal-btn-container">
                     <button type="button" id="modal-prev" class="modal-prev btn">Prev</button>
                     <button type="button" id="modal-next" class="modal-next btn">Next</button>
-                    </div>
+                </div>
         `
         
         const prev = document.querySelector(".modal-prev");
         const next = document.querySelector(".modal-next");
-        
-        //remove the "next" button when the last employee is displayed
-        const last = visibleCards.length -1;
-        if(number === last){
-            next.remove();
+
+        //if there's only one match - remove the modal-btn-container div
+        if (matches[0].length === 1){
+            document.querySelector(".modal-btn-container").remove()
 
         //remove the "previous" button when the first employee is displayed
         } else if(number === 0){
             prev.remove();
         
-        //if there's only one match, remove both buttons
-        } else if (visibleCards.length === 1) {
-            document.getElementsByClassName("modal-btn-container")[0].remove()
+        //remove the "next" button when the last employee is displayed
+        } else if (number === matches[0].length -1){
+            next.remove();
         }
 
         //eventlisteners for the next and prev buttons  
@@ -106,12 +100,9 @@ async function modal (user, number){
             prev.addEventListener('click', () => {
                 modalContainer.remove()
                 modal(user, number-1)
-            });
+            });   
             
-};
-
-
-//Eventlistener to close the modal window. Added the option to click outside the modal to close it.
+            //Eventlistener to close the modal window. Added the option to click outside the modal to close it.
         document.addEventListener('click', (e) => {
             if(e.target.className === "modal-close-btn" || e.target === modalContainer){
                 modalContainer.remove();
@@ -124,6 +115,7 @@ async function modal (user, number){
                 modalContainer.remove();
             }
         });
+};
 
 
 //Function to make all phone numbers in the (123) 456-7890 format
@@ -167,7 +159,6 @@ matches = []
 let searchResults = []
 const search = input.value.toLowerCase();
 
-
     for (let i = 0; i < cards.length; i++){
         if(results[i].name.first.toLowerCase().includes(search) || results[i].name.last.toLowerCase().includes(search)){
             cards[i].style.display = "flex"
@@ -192,6 +183,7 @@ const noMatches = document.createElement("h3")
 noMatches.innerHTML = "No Results!"
 noMatches.style.display = "none"
 gallery.appendChild(noMatches)
+
 
 
 //call the search function when the search button is clicked
